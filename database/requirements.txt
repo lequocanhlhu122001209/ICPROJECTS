@@ -1,0 +1,2 @@
+# Database dependencies
+pyodbc==5.0.1

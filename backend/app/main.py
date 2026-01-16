@@ -5,7 +5,7 @@ Main FastAPI Application
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api import survey, health_analysis, auth
+from app.api import survey, health_analysis, auth, dashboard
 from app.core.config import settings
 
 app = FastAPI(
@@ -29,6 +29,7 @@ app.add_middleware(
 app.include_router(auth.router, prefix="/api/auth", tags=["Authentication"])
 app.include_router(survey.router, prefix="/api/survey", tags=["Survey"])
 app.include_router(health_analysis.router, prefix="/api/analysis", tags=["Health Analysis"])
+app.include_router(dashboard.router, prefix="/api/dashboard", tags=["Dashboard"])
 
 
 @app.get("/")
