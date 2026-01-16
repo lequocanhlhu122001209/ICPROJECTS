@@ -1,150 +1,107 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+// =============================================
+// KHẢO SÁT 3 PHÚT - TẬP TRUNG ĐAU LƯNG + MỎI MẮT
+// =============================================
+
 const questions = [
-  // PHẦN 1: THÓI QUEN HỌC TẬP
+  // ========== PHẦN 1: THÓI QUEN NGỒI HỌC (Bắt buộc) ==========
   {
     id: 'sitting_hours',
-    section: 'Thói quen học tập',
+    section: '🪑 Thói quen ngồi học',
     question: 'Bạn ngồi học/làm việc trung bình bao nhiêu giờ mỗi ngày?',
-    type: 'number',
-    min: 0,
-    max: 24,
-    unit: 'giờ',
-    hint: 'Tính cả thời gian học ở trường và ở nhà'
-  },
-  {
-    id: 'sitting_posture',
-    section: 'Thói quen học tập',
-    question: 'Tư thế ngồi học thường ngày của bạn như thế nào?',
     type: 'choice',
+    required: true,
     options: [
-      { value: 'good', label: 'Ngồi thẳng lưng, vai thả lỏng', score: 10 },
-      { value: 'slight_hunch', label: 'Hơi gù lưng', score: 6 },
-      { value: 'hunched', label: 'Gù lưng nhiều', score: 3 },
-      { value: 'head_forward', label: 'Cúi đầu về phía trước', score: 4 },
-      { value: 'mixed', label: 'Thay đổi liên tục, không cố định', score: 5 }
+      { value: 2, label: 'Dưới 2 giờ' },
+      { value: 4, label: '2-4 giờ' },
+      { value: 6, label: '4-6 giờ' },
+      { value: 8, label: '6-8 giờ' },
+      { value: 10, label: '8-10 giờ' },
+      { value: 12, label: 'Trên 10 giờ' }
     ]
   },
   {
-    id: 'screen_time',
-    section: 'Thói quen học tập',
-    question: 'Bạn sử dụng máy tính/điện thoại bao nhiêu giờ mỗi ngày?',
-    type: 'number',
-    min: 0,
-    max: 24,
-    unit: 'giờ',
-    hint: 'Bao gồm cả học tập và giải trí'
-  },
-  {
-    id: 'screen_break',
-    section: 'Thói quen học tập',
-    question: 'Bạn có nghỉ giải lao khi sử dụng màn hình không?',
+    id: 'break_frequency',
+    section: '🪑 Thói quen ngồi học',
+    question: 'Mỗi bao lâu bạn đứng dậy nghỉ ngơi một lần?',
     type: 'choice',
+    required: true,
     options: [
-      { value: 'regular', label: 'Nghỉ mỗi 20-30 phút', score: 10 },
-      { value: 'hourly', label: 'Nghỉ mỗi 1 tiếng', score: 7 },
-      { value: 'rarely', label: 'Hiếm khi nghỉ', score: 3 },
-      { value: 'never', label: 'Không bao giờ nghỉ', score: 1 }
+      { value: 15, label: 'Mỗi 15-30 phút', score: 10 },
+      { value: 30, label: 'Mỗi 30-60 phút', score: 7 },
+      { value: 60, label: 'Mỗi 1-2 tiếng', score: 4 },
+      { value: 120, label: 'Trên 2 tiếng mới nghỉ', score: 1 },
+      { value: 999, label: 'Hiếm khi nghỉ', score: 0 }
     ]
   },
-  
-  // PHẦN 2: GIẤC NGỦ VÀ NGHỈ NGƠI
   {
-    id: 'sleep_hours',
-    section: 'Giấc ngủ & Nghỉ ngơi',
-    question: 'Bạn ngủ trung bình bao nhiêu giờ mỗi đêm?',
-    type: 'number',
-    min: 0,
-    max: 24,
-    unit: 'giờ'
+    id: 'hunched_back',
+    section: '🪑 Thói quen ngồi học',
+    question: 'Bạn có thường xuyên GÙ LƯNG khi ngồi học không?',
+    type: 'choice',
+    required: true,
+    options: [
+      { value: 'never', label: 'Không bao giờ', score: 10 },
+      { value: 'rarely', label: 'Hiếm khi', score: 7 },
+      { value: 'sometimes', label: 'Thỉnh thoảng', score: 5 },
+      { value: 'often', label: 'Thường xuyên', score: 2 },
+      { value: 'always', label: 'Luôn luôn', score: 0 }
+    ]
   },
   {
-    id: 'sleep_quality',
-    section: 'Giấc ngủ & Nghỉ ngơi',
-    question: 'Chất lượng giấc ngủ của bạn như thế nào?',
+    id: 'head_forward',
+    section: '🪑 Thói quen ngồi học',
+    question: 'Bạn có thường xuyên CÚI ĐẦU về phía trước khi nhìn màn hình không?',
+    type: 'choice',
+    required: true,
+    options: [
+      { value: 'never', label: 'Không bao giờ', score: 10 },
+      { value: 'rarely', label: 'Hiếm khi', score: 7 },
+      { value: 'sometimes', label: 'Thỉnh thoảng', score: 5 },
+      { value: 'often', label: 'Thường xuyên', score: 2 },
+      { value: 'always', label: 'Luôn luôn', score: 0 }
+    ]
+  },
+
+  // ========== PHẦN 2: TRIỆU CHỨNG ĐAU LƯNG/CỔ (Bắt buộc) ==========
+  {
+    id: 'neck_pain',
+    section: '😣 Triệu chứng đau',
+    question: 'Mức độ ĐAU CỔ/VAI của bạn trong tuần qua?',
     type: 'scale',
-    min: 1,
+    required: true,
+    min: 0,
     max: 10,
-    labels: { 1: 'Rất kém', 10: 'Rất tốt' }
+    labels: { 0: 'Không đau', 5: 'Đau vừa', 10: 'Rất đau' }
   },
   {
-    id: 'screen_before_sleep',
-    section: 'Giấc ngủ & Nghỉ ngơi',
-    question: 'Bạn có sử dụng điện thoại/máy tính trước khi ngủ không?',
-    type: 'choice',
-    options: [
-      { value: 'no', label: 'Không, tắt thiết bị 1 tiếng trước khi ngủ', score: 10 },
-      { value: 'sometimes', label: 'Thỉnh thoảng, khoảng 30 phút', score: 6 },
-      { value: 'often', label: 'Thường xuyên, đến khi buồn ngủ', score: 3 },
-      { value: 'always', label: 'Luôn luôn, ngủ với điện thoại', score: 1 }
-    ]
-  },
-  
-  // PHẦN 3: HOẠT ĐỘNG THỂ CHẤT
-  {
-    id: 'exercise_minutes',
-    section: 'Hoạt động thể chất',
-    question: 'Bạn vận động thể chất bao nhiêu phút mỗi tuần?',
-    type: 'number',
-    min: 0,
-    max: 1440,
-    unit: 'phút/tuần',
-    hint: 'WHO khuyến nghị 150 phút/tuần'
-  },
-  {
-    id: 'exercise_type',
-    section: 'Hoạt động thể chất',
-    question: 'Loại hoạt động thể chất bạn thường làm?',
-    type: 'multi_choice',
-    options: [
-      { value: 'walking', label: 'Đi bộ' },
-      { value: 'running', label: 'Chạy bộ' },
-      { value: 'gym', label: 'Tập gym' },
-      { value: 'sports', label: 'Thể thao (bóng đá, cầu lông...)' },
-      { value: 'yoga', label: 'Yoga/Pilates' },
-      { value: 'swimming', label: 'Bơi lội' },
-      { value: 'cycling', label: 'Đạp xe' },
-      { value: 'none', label: 'Không vận động' }
-    ]
-  },
-  {
-    id: 'daily_steps',
-    section: 'Hoạt động thể chất',
-    question: 'Số bước chân trung bình mỗi ngày của bạn? (nếu biết)',
-    type: 'number',
-    min: 0,
-    max: 50000,
-    unit: 'bước',
-    hint: 'Có thể xem từ điện thoại hoặc đồng hồ thông minh',
-    optional: true
-  },
-  {
-    id: 'sedentary_hours',
-    section: 'Hoạt động thể chất',
-    question: 'Thời gian ít vận động (ngồi/nằm) mỗi ngày?',
-    type: 'number',
-    min: 0,
-    max: 24,
-    unit: 'giờ',
-    hint: 'Không tính thời gian ngủ'
-  },
-  
-  // PHẦN 4: TRIỆU CHỨNG ĐAU/MỎI
-  {
-    id: 'back_pain',
-    section: 'Triệu chứng',
-    question: 'Mức độ đau lưng của bạn trong tuần qua?',
+    id: 'upper_back_pain',
+    section: '😣 Triệu chứng đau',
+    question: 'Mức độ ĐAU LƯNG TRÊN của bạn trong tuần qua?',
     type: 'scale',
-    min: 1,
+    required: true,
+    min: 0,
     max: 10,
-    labels: { 1: 'Không đau', 10: 'Rất đau' }
+    labels: { 0: 'Không đau', 5: 'Đau vừa', 10: 'Rất đau' }
   },
   {
-    id: 'back_pain_frequency',
-    section: 'Triệu chứng',
-    question: 'Tần suất đau lưng trong tuần qua?',
+    id: 'lower_back_pain',
+    section: '😣 Triệu chứng đau',
+    question: 'Mức độ ĐAU LƯNG DƯỚI của bạn trong tuần qua?',
+    type: 'scale',
+    required: true,
+    min: 0,
+    max: 10,
+    labels: { 0: 'Không đau', 5: 'Đau vừa', 10: 'Rất đau' }
+  },
+  {
+    id: 'pain_frequency',
+    section: '😣 Triệu chứng đau',
+    question: 'Tần suất bạn bị đau lưng/cổ trong tuần qua?',
     type: 'choice',
+    required: true,
     options: [
       { value: 'never', label: 'Không bao giờ', score: 10 },
       { value: 'once', label: '1-2 lần/tuần', score: 7 },
@@ -152,29 +109,52 @@ const questions = [
       { value: 'daily', label: 'Hàng ngày', score: 1 }
     ]
   },
+
+  // ========== PHẦN 3: MỎI MẮT (Phụ) ==========
   {
-    id: 'neck_pain',
-    section: 'Triệu chứng',
-    question: 'Mức độ đau cổ/vai của bạn trong tuần qua?',
-    type: 'scale',
-    min: 1,
-    max: 10,
-    labels: { 1: 'Không đau', 10: 'Rất đau' }
+    id: 'screen_time',
+    section: '👁️ Sức khỏe mắt',
+    question: 'Bạn nhìn màn hình (máy tính/điện thoại) bao nhiêu giờ mỗi ngày?',
+    type: 'choice',
+    required: true,
+    options: [
+      { value: 2, label: 'Dưới 2 giờ' },
+      { value: 4, label: '2-4 giờ' },
+      { value: 6, label: '4-6 giờ' },
+      { value: 8, label: '6-8 giờ' },
+      { value: 10, label: '8-10 giờ' },
+      { value: 12, label: 'Trên 10 giờ' }
+    ]
   },
   {
     id: 'eye_strain',
-    section: 'Triệu chứng',
-    question: 'Mức độ mỏi mắt của bạn trong tuần qua?',
+    section: '👁️ Sức khỏe mắt',
+    question: 'Mức độ MỎI MẮT của bạn trong tuần qua?',
     type: 'scale',
-    min: 1,
+    required: true,
+    min: 0,
     max: 10,
-    labels: { 1: 'Không mỏi', 10: 'Rất mỏi' }
+    labels: { 0: 'Không mỏi', 5: 'Mỏi vừa', 10: 'Rất mỏi' }
+  },
+  {
+    id: 'dry_eyes',
+    section: '👁️ Sức khỏe mắt',
+    question: 'Bạn có bị KHÔ MẮT trong tuần qua không?',
+    type: 'choice',
+    required: true,
+    options: [
+      { value: 'never', label: 'Không bao giờ', score: 10 },
+      { value: 'rarely', label: 'Hiếm khi', score: 7 },
+      { value: 'sometimes', label: 'Thỉnh thoảng', score: 5 },
+      { value: 'often', label: 'Thường xuyên', score: 2 }
+    ]
   },
   {
     id: 'headache',
-    section: 'Triệu chứng',
-    question: 'Bạn có bị đau đầu trong tuần qua không?',
+    section: '👁️ Sức khỏe mắt',
+    question: 'Bạn có bị NHỨC ĐẦU (liên quan đến nhìn màn hình) trong tuần qua?',
     type: 'choice',
+    required: true,
     options: [
       { value: 'never', label: 'Không bao giờ', score: 10 },
       { value: 'once', label: '1-2 lần/tuần', score: 7 },
@@ -182,62 +162,54 @@ const questions = [
       { value: 'daily', label: 'Hàng ngày', score: 1 }
     ]
   },
-  
-  // PHẦN 5: SỨC KHỎE TÂM THẦN
   {
-    id: 'stress_level',
-    section: 'Sức khỏe tâm thần',
-    question: 'Mức độ stress của bạn trong tuần qua?',
-    type: 'scale',
-    min: 1,
-    max: 10,
-    labels: { 1: 'Không stress', 10: 'Rất stress' }
-  },
-  {
-    id: 'stress_source',
-    section: 'Sức khỏe tâm thần',
-    question: 'Nguồn stress chính của bạn là gì?',
-    type: 'multi_choice',
+    id: 'screen_distance',
+    section: '👁️ Sức khỏe mắt',
+    question: 'Khoảng cách từ mắt đến màn hình khi làm việc?',
+    type: 'choice',
+    required: true,
     options: [
-      { value: 'study', label: 'Học tập/Thi cử' },
-      { value: 'work', label: 'Công việc/Thực tập' },
-      { value: 'finance', label: 'Tài chính' },
-      { value: 'relationship', label: 'Mối quan hệ' },
-      { value: 'health', label: 'Sức khỏe' },
-      { value: 'future', label: 'Lo lắng về tương lai' },
-      { value: 'none', label: 'Không có stress đáng kể' }
+      { value: 'too_close', label: 'Rất gần (<30cm)', score: 2 },
+      { value: 'close', label: 'Hơi gần (30-50cm)', score: 5 },
+      { value: 'normal', label: 'Vừa phải (50-70cm)', score: 10 },
+      { value: 'far', label: 'Xa (>70cm)', score: 8 }
     ]
   },
   {
-    id: 'mood',
-    section: 'Sức khỏe tâm thần',
-    question: 'Tâm trạng chung của bạn trong tuần qua?',
-    type: 'scale',
-    min: 1,
-    max: 10,
-    labels: { 1: 'Rất tệ', 10: 'Rất tốt' }
-  },
-  
-  // PHẦN 6: TỰ ĐÁNH GIÁ
-  {
-    id: 'posture_quality',
-    section: 'Tự đánh giá',
-    question: 'Bạn tự đánh giá tư thế ngồi của mình như thế nào?',
-    type: 'scale',
-    min: 1,
-    max: 10,
-    labels: { 1: 'Rất xấu', 10: 'Rất tốt' }
-  },
-  {
-    id: 'health_awareness',
-    section: 'Tự đánh giá',
-    question: 'Bạn có quan tâm đến sức khỏe khi học tập không?',
+    id: 'lighting',
+    section: '👁️ Sức khỏe mắt',
+    question: 'Ánh sáng nơi bạn học/làm việc như thế nào?',
     type: 'choice',
+    required: true,
     options: [
-      { value: 'very', label: 'Rất quan tâm, thường xuyên điều chỉnh', score: 10 },
-      { value: 'moderate', label: 'Quan tâm nhưng hay quên', score: 6 },
-      { value: 'little', label: 'Ít quan tâm', score: 3 },
-      { value: 'none', label: 'Không quan tâm', score: 1 }
+      { value: 'too_dark', label: 'Quá tối', score: 3 },
+      { value: 'dim', label: 'Hơi tối', score: 5 },
+      { value: 'good', label: 'Đủ sáng, dễ chịu', score: 10 },
+      { value: 'too_bright', label: 'Quá sáng/chói', score: 4 }
+    ]
+  },
+
+  // ========== PHẦN 4: THÔNG TIN NỀN (Tùy chọn) ==========
+  {
+    id: 'faculty',
+    section: '📚 Thông tin (tùy chọn)',
+    question: 'Bạn học khoa/ngành nào?',
+    type: 'text',
+    required: false,
+    placeholder: 'VD: Công nghệ thông tin, Kinh tế...'
+  },
+  {
+    id: 'year',
+    section: '📚 Thông tin (tùy chọn)',
+    question: 'Bạn đang học năm mấy?',
+    type: 'choice',
+    required: false,
+    options: [
+      { value: 1, label: 'Năm 1' },
+      { value: 2, label: 'Năm 2' },
+      { value: 3, label: 'Năm 3' },
+      { value: 4, label: 'Năm 4' },
+      { value: 5, label: 'Năm 5+' }
     ]
   }
 ];
@@ -247,9 +219,14 @@ export default function Survey() {
   const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState({});
   const [consent, setConsent] = useState(false);
+  const [startTime] = useState(Date.now());
 
   const currentQuestion = questions[currentStep];
   const progress = ((currentStep + 1) / questions.length) * 100;
+  
+  // Đếm số câu bắt buộc đã trả lời
+  const requiredQuestions = questions.filter(q => q.required);
+  const answeredRequired = requiredQuestions.filter(q => answers[q.id] !== undefined).length;
 
   const handleAnswer = (value) => {
     setAnswers({ ...answers, [currentQuestion.id]: value });
@@ -259,20 +236,19 @@ export default function Survey() {
     if (currentStep < questions.length - 1) {
       setCurrentStep(currentStep + 1);
     } else {
-      // Submit survey
-      localStorage.setItem('surveyData', JSON.stringify(answers));
-      localStorage.setItem('surveyDate', new Date().toISOString());
+      // Tính thời gian làm khảo sát
+      const duration = Math.round((Date.now() - startTime) / 1000);
+      
+      // Lưu kết quả
+      const surveyResult = {
+        ...answers,
+        survey_duration_seconds: duration,
+        submitted_at: new Date().toISOString()
+      };
+      
+      localStorage.setItem('surveyData', JSON.stringify(surveyResult));
       navigate('/results');
     }
-  };
-
-  const canProceed = () => {
-    const answer = answers[currentQuestion.id];
-    if (currentQuestion.optional) return true;
-    if (currentQuestion.type === 'multi_choice') {
-      return answer && answer.length > 0;
-    }
-    return answer !== undefined && answer !== '';
   };
 
   const handlePrev = () => {
@@ -281,52 +257,62 @@ export default function Survey() {
     }
   };
 
+  const canProceed = () => {
+    if (!currentQuestion.required) return true;
+    const answer = answers[currentQuestion.id];
+    return answer !== undefined && answer !== '';
+  };
+
+  // ========== CONSENT SCREEN ==========
   if (!consent) {
     return (
       <div className="max-w-2xl mx-auto">
         <div className="card">
-          <h2 className="text-2xl font-bold mb-4">📋 Điều khoản sử dụng</h2>
-          
-          <div className="space-y-4 text-gray-600 mb-6">
-            <p><strong>Mục đích:</strong> Thu thập dữ liệu để hỗ trợ sàng lọc các vấn đề sức khỏe học đường.</p>
-            
-            <div>
-              <strong>Dữ liệu thu thập:</strong>
-              <ul className="list-disc ml-6 mt-2">
-                <li>Thông tin thói quen học tập</li>
-                <li>Tự đánh giá triệu chứng</li>
-                <li>Chỉ số tư thế (không lưu hình ảnh)</li>
-              </ul>
-            </div>
-            
-            <div>
-              <strong>Cam kết bảo mật:</strong>
-              <ul className="list-disc ml-6 mt-2">
-                <li>Dữ liệu được mã hóa và bảo mật</li>
-                <li>Không chia sẻ với bên thứ ba</li>
-                <li>Bạn có quyền xóa dữ liệu bất cứ lúc nào</li>
-              </ul>
-            </div>
-            
-            <p className="text-yellow-700 bg-yellow-50 p-3 rounded-lg">
-              ⚠️ <strong>Lưu ý:</strong> Hệ thống chỉ hỗ trợ sàng lọc, KHÔNG thay thế chẩn đoán y tế.
+          <div className="text-center mb-6">
+            <span className="text-5xl">🎯</span>
+            <h1 className="text-2xl font-bold mt-4">Campus Posture & EyeCare AI</h1>
+            <p className="text-gray-600 mt-2">Khảo sát sức khỏe tư thế và mắt (~3 phút)</p>
+          </div>
+
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+            <h3 className="font-semibold text-blue-800 mb-2">📋 Về khảo sát này</h3>
+            <ul className="text-sm text-blue-700 space-y-1">
+              <li>• Chỉ mất khoảng <strong>3 phút</strong></li>
+              <li>• Tập trung vào <strong>đau lưng/cổ</strong> và <strong>mỏi mắt</strong></li>
+              <li>• Nhận ngay <strong>điểm nguy cơ</strong> và <strong>khuyến nghị</strong></li>
+            </ul>
+          </div>
+
+          <div className="space-y-3 text-sm text-gray-600 mb-6">
+            <p><strong>🔒 Cam kết bảo mật:</strong></p>
+            <ul className="list-disc ml-6 space-y-1">
+              <li>Dữ liệu được <strong>ẩn danh hóa</strong></li>
+              <li>Không thu thập thông tin cá nhân nhạy cảm</li>
+              <li>Chỉ dùng cho mục đích nghiên cứu và cải thiện sức khỏe</li>
+            </ul>
+          </div>
+
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+            <p className="text-sm text-yellow-800">
+              ⚠️ <strong>Lưu ý:</strong> Kết quả chỉ mang tính tham khảo, 
+              <strong> KHÔNG thay thế</strong> chẩn đoán y tế chuyên nghiệp.
             </p>
           </div>
-          
+
           <label className="flex items-center gap-3 mb-6 cursor-pointer">
             <input
               type="checkbox"
               checked={consent}
               onChange={(e) => setConsent(e.target.checked)}
-              className="w-5 h-5"
+              className="w-5 h-5 rounded"
             />
-            <span>Tôi đã đọc và đồng ý với điều khoản sử dụng</span>
+            <span>Tôi đã đọc và đồng ý tham gia khảo sát</span>
           </label>
-          
+
           <button
             onClick={() => setConsent(true)}
             disabled={!consent}
-            className="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
+            className="btn-primary w-full disabled:opacity-50"
           >
             Bắt đầu khảo sát
           </button>
@@ -335,9 +321,10 @@ export default function Survey() {
     );
   }
 
+  // ========== SURVEY FORM ==========
   return (
     <div className="max-w-2xl mx-auto">
-      {/* Progress bar */}
+      {/* Progress */}
       <div className="mb-6">
         <div className="flex justify-between text-sm text-gray-600 mb-2">
           <span>Câu {currentStep + 1}/{questions.length}</span>
@@ -345,76 +332,36 @@ export default function Survey() {
         </div>
         <div className="h-2 bg-gray-200 rounded-full">
           <div
-            className="h-full bg-blue-600 rounded-full transition-all"
+            className="h-full bg-blue-600 rounded-full transition-all duration-300"
             style={{ width: `${progress}%` }}
           />
         </div>
+        <p className="text-xs text-gray-400 mt-1 text-right">
+          {answeredRequired}/{requiredQuestions.length} câu bắt buộc
+        </p>
       </div>
 
-      {/* Question */}
+      {/* Question Card */}
       <div className="card">
-        <h2 className="text-xl font-semibold mb-6">{currentQuestion.question}</h2>
-
-        {currentQuestion.type === 'number' && (
-          <div className="space-y-4">
-            <input
-              type="number"
-              min={currentQuestion.min}
-              max={currentQuestion.max}
-              value={answers[currentQuestion.id] || ''}
-              onChange={(e) => handleAnswer(Number(e.target.value))}
-              className="input-field text-center text-2xl"
-              placeholder="0"
-            />
-            <p className="text-center text-gray-500">{currentQuestion.unit}</p>
-            {currentQuestion.hint && (
-              <p className="text-center text-sm text-gray-400">💡 {currentQuestion.hint}</p>
-            )}
-            {currentQuestion.optional && (
-              <button
-                onClick={() => handleAnswer(-1)}
-                className="text-sm text-blue-600 hover:underline"
-              >
-                Bỏ qua câu này
-              </button>
-            )}
-          </div>
+        <h2 className="text-xl font-semibold mb-2">
+          {currentQuestion.question}
+          {currentQuestion.required && <span className="text-red-500 ml-1">*</span>}
+        </h2>
+        {!currentQuestion.required && (
+          <p className="text-sm text-gray-400 mb-4">(Tùy chọn - có thể bỏ qua)</p>
         )}
 
-        {currentQuestion.type === 'scale' && (
-          <div className="space-y-4">
-            <div className="flex justify-between text-sm text-gray-500">
-              <span>{currentQuestion.labels[1]}</span>
-              <span>{currentQuestion.labels[10]}</span>
-            </div>
-            <div className="flex gap-2">
-              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((value) => (
-                <button
-                  key={value}
-                  onClick={() => handleAnswer(value)}
-                  className={`flex-1 py-3 rounded-lg font-medium transition-colors ${
-                    answers[currentQuestion.id] === value
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-gray-100 hover:bg-gray-200'
-                  }`}
-                >
-                  {value}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
+        {/* Choice type */}
         {currentQuestion.type === 'choice' && (
-          <div className="space-y-3">
+          <div className="space-y-2 mt-4">
             {currentQuestion.options.map((option) => (
               <button
                 key={option.value}
                 onClick={() => handleAnswer(option.value)}
-                className={`w-full p-4 rounded-lg text-left transition-colors border-2 ${
+                className={`w-full p-4 rounded-lg text-left transition-all border-2 ${
                   answers[currentQuestion.id] === option.value
-                    ? 'border-blue-600 bg-blue-50'
-                    : 'border-gray-200 hover:border-gray-300'
+                    ? 'border-blue-600 bg-blue-50 text-blue-800'
+                    : 'border-gray-200 hover:border-blue-300'
                 }`}
               >
                 {option.label}
@@ -423,37 +370,53 @@ export default function Survey() {
           </div>
         )}
 
-        {currentQuestion.type === 'multi_choice' && (
-          <div className="space-y-3">
-            <p className="text-sm text-gray-500">Có thể chọn nhiều đáp án</p>
-            {currentQuestion.options.map((option) => {
-              const selected = (answers[currentQuestion.id] || []).includes(option.value);
-              return (
+        {/* Scale type (0-10) */}
+        {currentQuestion.type === 'scale' && (
+          <div className="mt-4">
+            <div className="flex justify-between text-sm text-gray-500 mb-3">
+              <span>{currentQuestion.labels[0]}</span>
+              <span>{currentQuestion.labels[5]}</span>
+              <span>{currentQuestion.labels[10]}</span>
+            </div>
+            <div className="flex gap-1">
+              {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((value) => (
                 <button
-                  key={option.value}
-                  onClick={() => {
-                    const current = answers[currentQuestion.id] || [];
-                    if (selected) {
-                      handleAnswer(current.filter(v => v !== option.value));
-                    } else {
-                      handleAnswer([...current, option.value]);
-                    }
-                  }}
-                  className={`w-full p-4 rounded-lg text-left transition-colors border-2 flex items-center gap-3 ${
-                    selected
-                      ? 'border-blue-600 bg-blue-50'
-                      : 'border-gray-200 hover:border-gray-300'
+                  key={value}
+                  onClick={() => handleAnswer(value)}
+                  className={`flex-1 py-3 rounded-lg font-medium transition-all ${
+                    answers[currentQuestion.id] === value
+                      ? value <= 3 ? 'bg-green-500 text-white' :
+                        value <= 6 ? 'bg-yellow-500 text-white' :
+                        'bg-red-500 text-white'
+                      : 'bg-gray-100 hover:bg-gray-200'
                   }`}
                 >
-                  <span className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
-                    selected ? 'bg-blue-600 border-blue-600' : 'border-gray-300'
-                  }`}>
-                    {selected && <span className="text-white text-sm">✓</span>}
-                  </span>
-                  {option.label}
+                  {value}
                 </button>
-              );
-            })}
+              ))}
+            </div>
+            {answers[currentQuestion.id] !== undefined && (
+              <p className="text-center mt-3 font-medium">
+                Bạn chọn: <span className={
+                  answers[currentQuestion.id] <= 3 ? 'text-green-600' :
+                  answers[currentQuestion.id] <= 6 ? 'text-yellow-600' :
+                  'text-red-600'
+                }>{answers[currentQuestion.id]}/10</span>
+              </p>
+            )}
+          </div>
+        )}
+
+        {/* Text type */}
+        {currentQuestion.type === 'text' && (
+          <div className="mt-4">
+            <input
+              type="text"
+              value={answers[currentQuestion.id] || ''}
+              onChange={(e) => handleAnswer(e.target.value)}
+              placeholder={currentQuestion.placeholder}
+              className="input-field"
+            />
           </div>
         )}
 
@@ -464,16 +427,26 @@ export default function Survey() {
             disabled={currentStep === 0}
             className="btn-secondary flex-1 disabled:opacity-50"
           >
-            Quay lại
+            ← Quay lại
           </button>
           <button
             onClick={handleNext}
-            disabled={!canProceed()}
+            disabled={currentQuestion.required && !canProceed()}
             className="btn-primary flex-1 disabled:opacity-50"
           >
-            {currentStep === questions.length - 1 ? 'Hoàn thành' : 'Tiếp theo'}
+            {currentStep === questions.length - 1 ? '✓ Hoàn thành' : 'Tiếp theo →'}
           </button>
         </div>
+
+        {/* Skip optional */}
+        {!currentQuestion.required && answers[currentQuestion.id] === undefined && (
+          <button
+            onClick={handleNext}
+            className="w-full mt-3 text-sm text-gray-500 hover:text-gray-700"
+          >
+            Bỏ qua câu này →
+          </button>
+        )}
       </div>
     </div>
   );

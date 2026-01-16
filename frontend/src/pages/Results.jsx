@@ -1,345 +1,345 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
-// Rule-based analysis với form mở rộng
-function analyzeHealth(data) {
-  let musculoskeletal = 100;
-  let eyeHealth = 100;
-  let mentalHealth = 100;
-  let physicalActivity = 100;
-  
-  // === CƠ XƯƠNG KHỚP ===
-  // Đau lưng
-  const backPain = data.back_pain || 1;
-  musculoskeletal -= (backPain - 1) * 5;
-  
-  // Tần suất đau lưng
-  const backPainFreq = data.back_pain_frequency;
-  if (backPainFreq === 'daily') musculoskeletal -= 15;
-  else if (backPainFreq === 'several') musculoskeletal -= 10;
-  else if (backPainFreq === 'once') musculoskeletal -= 5;
-  
-  // Đau cổ
-  const neckPain = data.neck_pain || 1;
-  musculoskeletal -= (neckPain - 1) * 5;
+// =============================================
+// TÍNH ĐIỂM NGUY CƠ - POSTURE & EYECARE
+// =============================================
+
+function calculateScores(data) {
+  // ========== POSTURE SCORE (0-100) ==========
+  let postureScore = 100;
   
   // Thời gian ngồi
-  const sittingHours = data.sitting_hours || 0;
-  if (sittingHours > 10) musculoskeletal -= 25;
-  else if (sittingHours > 8) musculoskeletal -= 20;
-  else if (sittingHours > 6) musculoskeletal -= 10;
+  const sittingHours = data.sitting_hours || 4;
+  if (sittingHours >= 10) postureScore -= 25;
+  else if (sittingHours >= 8) postureScore -= 20;
+  else if (sittingHours >= 6) postureScore -= 10;
   
-  // Tư thế ngồi
-  const sittingPosture = data.sitting_posture;
-  if (sittingPosture === 'hunched') musculoskeletal -= 15;
-  else if (sittingPosture === 'head_forward') musculoskeletal -= 12;
-  else if (sittingPosture === 'slight_hunch') musculoskeletal -= 8;
+  // Tần suất nghỉ
+  const breakFreq = data.break_frequency || 60;
+  if (breakFreq >= 120) postureScore -= 20;
+  else if (breakFreq >= 60) postureScore -= 10;
+  else if (breakFreq >= 30) postureScore -= 5;
   
-  // Tự đánh giá tư thế
-  const postureQuality = data.posture_quality || 5;
-  musculoskeletal -= (10 - postureQuality) * 2;
+  // Gù lưng
+  const hunchedBack = data.hunched_back;
+  if (hunchedBack === 'always') postureScore -= 25;
+  else if (hunchedBack === 'often') postureScore -= 20;
+  else if (hunchedBack === 'sometimes') postureScore -= 10;
+  else if (hunchedBack === 'rarely') postureScore -= 5;
   
-  // === SỨC KHỎE MẮT ===
-  const eyeStrain = data.eye_strain || 1;
-  eyeHealth -= (eyeStrain - 1) * 6;
+  // Cúi đầu
+  const headForward = data.head_forward;
+  if (headForward === 'always') postureScore -= 20;
+  else if (headForward === 'often') postureScore -= 15;
+  else if (headForward === 'sometimes') postureScore -= 8;
+  else if (headForward === 'rarely') postureScore -= 3;
   
-  const screenTime = data.screen_time || 0;
-  if (screenTime > 12) eyeHealth -= 30;
-  else if (screenTime > 10) eyeHealth -= 25;
-  else if (screenTime > 8) eyeHealth -= 15;
-  else if (screenTime > 6) eyeHealth -= 10;
+  // Đau cổ
+  const neckPain = data.neck_pain || 0;
+  postureScore -= neckPain * 2;
   
-  // Nghỉ giải lao màn hình
-  const screenBreak = data.screen_break;
-  if (screenBreak === 'never') eyeHealth -= 15;
-  else if (screenBreak === 'rarely') eyeHealth -= 10;
-  else if (screenBreak === 'hourly') eyeHealth -= 5;
+  // Đau lưng trên
+  const upperBackPain = data.upper_back_pain || 0;
+  postureScore -= upperBackPain * 2;
   
-  // Đau đầu
+  // Đau lưng dưới
+  const lowerBackPain = data.lower_back_pain || 0;
+  postureScore -= lowerBackPain * 2;
+  
+  // Tần suất đau
+  const painFreq = data.pain_frequency;
+  if (painFreq === 'daily') postureScore -= 15;
+  else if (painFreq === 'several') postureScore -= 10;
+  else if (painFreq === 'once') postureScore -= 5;
+  
+  // ========== EYE SCORE (0-100) ==========
+  let eyeScore = 100;
+  
+  // Thời gian màn hình
+  const screenTime = data.screen_time || 4;
+  if (screenTime >= 10) eyeScore -= 25;
+  else if (screenTime >= 8) eyeScore -= 20;
+  else if (screenTime >= 6) eyeScore -= 10;
+  
+  // Mỏi mắt
+  const eyeStrain = data.eye_strain || 0;
+  eyeScore -= eyeStrain * 3;
+  
+  // Khô mắt
+  const dryEyes = data.dry_eyes;
+  if (dryEyes === 'often') eyeScore -= 15;
+  else if (dryEyes === 'sometimes') eyeScore -= 10;
+  else if (dryEyes === 'rarely') eyeScore -= 5;
+  
+  // Nhức đầu
   const headache = data.headache;
-  if (headache === 'daily') eyeHealth -= 15;
-  else if (headache === 'several') eyeHealth -= 10;
-  else if (headache === 'once') eyeHealth -= 5;
+  if (headache === 'daily') eyeScore -= 20;
+  else if (headache === 'several') eyeScore -= 15;
+  else if (headache === 'once') eyeScore -= 5;
   
-  // === SỨC KHỎE TÂM THẦN ===
-  const stressLevel = data.stress_level || 1;
-  mentalHealth -= (stressLevel - 1) * 6;
+  // Khoảng cách màn hình
+  const screenDistance = data.screen_distance;
+  if (screenDistance === 'too_close') eyeScore -= 15;
+  else if (screenDistance === 'close') eyeScore -= 8;
   
-  const sleepHours = data.sleep_hours || 7;
-  if (sleepHours < 5) mentalHealth -= 25;
-  else if (sleepHours < 6) mentalHealth -= 15;
-  else if (sleepHours < 7) mentalHealth -= 5;
+  // Ánh sáng
+  const lighting = data.lighting;
+  if (lighting === 'too_dark') eyeScore -= 15;
+  else if (lighting === 'dim') eyeScore -= 10;
+  else if (lighting === 'too_bright') eyeScore -= 10;
   
-  // Chất lượng giấc ngủ
-  const sleepQuality = data.sleep_quality || 5;
-  mentalHealth -= (10 - sleepQuality) * 2;
+  // Clamp scores
+  postureScore = Math.max(0, Math.min(100, postureScore));
+  eyeScore = Math.max(0, Math.min(100, eyeScore));
   
-  // Sử dụng màn hình trước ngủ
-  const screenBeforeSleep = data.screen_before_sleep;
-  if (screenBeforeSleep === 'always') mentalHealth -= 10;
-  else if (screenBeforeSleep === 'often') mentalHealth -= 7;
-  else if (screenBeforeSleep === 'sometimes') mentalHealth -= 3;
+  // Overall score (weighted: posture 60%, eye 40%)
+  const overallScore = postureScore * 0.6 + eyeScore * 0.4;
   
-  // Tâm trạng
-  const mood = data.mood || 5;
-  mentalHealth -= (10 - mood) * 2;
-  
-  // === HOẠT ĐỘNG THỂ CHẤT ===
-  const exerciseMinutes = data.exercise_minutes || 0;
-  if (exerciseMinutes < 30) physicalActivity -= 40;
-  else if (exerciseMinutes < 60) physicalActivity -= 25;
-  else if (exerciseMinutes < 150) physicalActivity -= 10;
-  
-  // Số bước chân
-  const dailySteps = data.daily_steps || 0;
-  if (dailySteps > 0) {
-    if (dailySteps < 3000) physicalActivity -= 15;
-    else if (dailySteps < 5000) physicalActivity -= 10;
-    else if (dailySteps < 8000) physicalActivity -= 5;
-  }
-  
-  // Thời gian ít vận động
-  const sedentaryHours = data.sedentary_hours || 0;
-  if (sedentaryHours > 10) physicalActivity -= 20;
-  else if (sedentaryHours > 8) physicalActivity -= 15;
-  else if (sedentaryHours > 6) physicalActivity -= 10;
-  
-  // Kết hợp ngồi nhiều + ít vận động
-  if (sittingHours > 8 && exerciseMinutes < 60) physicalActivity -= 15;
-  
-  // Dữ liệu từ thiết bị (nếu có)
-  const deviceData = data.device_data;
-  if (deviceData) {
-    if (deviceData.daily_steps && parseInt(deviceData.daily_steps) > 8000) {
-      physicalActivity += 5;
-    }
-    if (deviceData.active_minutes && parseInt(deviceData.active_minutes) >= 150) {
-      physicalActivity += 5;
-    }
-  }
-  
-  // Clamp values
-  musculoskeletal = Math.max(0, Math.min(100, musculoskeletal));
-  eyeHealth = Math.max(0, Math.min(100, eyeHealth));
-  mentalHealth = Math.max(0, Math.min(100, mentalHealth));
-  physicalActivity = Math.max(0, Math.min(100, physicalActivity));
-  
-  // Overall score (weighted)
-  const overall = musculoskeletal * 0.3 + eyeHealth * 0.2 + mentalHealth * 0.25 + physicalActivity * 0.25;
-  
-  // Risk level
-  let riskLevel = 'LOW';
-  if (overall < 40) riskLevel = 'HIGH';
-  else if (overall < 70) riskLevel = 'MEDIUM';
-  
-  // Generate alerts
-  const alerts = generateAlerts(data);
-  
-  // Generate recommendations
-  const recommendations = generateRecommendations(data);
+  // Risk levels
+  const getLevel = (score) => {
+    if (score >= 70) return 'LOW';
+    if (score >= 40) return 'MEDIUM';
+    return 'HIGH';
+  };
   
   return {
-    overall: Math.round(overall),
-    riskLevel,
-    scores: {
-      musculoskeletal: Math.round(musculoskeletal),
-      eyeHealth: Math.round(eyeHealth),
-      mentalHealth: Math.round(mentalHealth),
-      physicalActivity: Math.round(physicalActivity)
-    },
-    alerts,
-    recommendations
+    postureScore: Math.round(postureScore),
+    postureLevel: getLevel(postureScore),
+    eyeScore: Math.round(eyeScore),
+    eyeLevel: getLevel(eyeScore),
+    overallScore: Math.round(overallScore),
+    overallLevel: getLevel(overallScore)
   };
 }
 
-function generateAlerts(data) {
+function generateAlerts(data, scores) {
   const alerts = [];
   
-  // Rule: Đau lưng cao + kéo dài
-  if ((data.back_pain || 1) >= 7) {
+  // ========== POSTURE ALERTS ==========
+  // Đau lưng cao
+  const maxPain = Math.max(
+    data.neck_pain || 0,
+    data.upper_back_pain || 0,
+    data.lower_back_pain || 0
+  );
+  
+  if (maxPain >= 7) {
     alerts.push({
-      category: 'POSTURE',
+      type: 'POSTURE',
       severity: 'HIGH',
-      message: 'Mức độ đau lưng cao (≥7/10)',
-      recommendation: 'Nên nghỉ ngơi và tập các bài giãn cơ lưng. Nếu đau kéo dài hơn 1 tuần, hãy gặp bác sĩ.'
+      title: 'Mức độ đau cao',
+      message: `Bạn đang có mức đau ${maxPain}/10. Đây là dấu hiệu cần chú ý.`,
+      action: 'Nên nghỉ ngơi và tập các bài giãn cơ. Nếu đau kéo dài, hãy gặp bác sĩ.'
     });
   }
   
-  // Rule: Đau lưng hàng ngày
-  if (data.back_pain_frequency === 'daily' && (data.back_pain || 1) >= 5) {
+  // Đau hàng ngày
+  if (data.pain_frequency === 'daily') {
     alerts.push({
-      category: 'POSTURE',
+      type: 'POSTURE',
       severity: 'HIGH',
-      message: 'Đau lưng xảy ra hàng ngày',
-      recommendation: 'Đau lưng thường xuyên cần được kiểm tra. Hãy cân nhắc gặp bác sĩ hoặc chuyên gia vật lý trị liệu.'
+      title: 'Đau lưng/cổ hàng ngày',
+      message: 'Đau thường xuyên có thể ảnh hưởng đến học tập và chất lượng cuộc sống.',
+      action: 'Cần điều chỉnh tư thế ngồi và cân nhắc gặp chuyên gia vật lý trị liệu.'
     });
   }
   
-  // Rule: Stress cao + thiếu ngủ
-  if ((data.stress_level || 1) >= 7 && (data.sleep_hours || 7) < 6) {
+  // Ngồi quá lâu không nghỉ
+  if (data.break_frequency >= 120 || data.break_frequency === 999) {
     alerts.push({
-      category: 'STRESS',
-      severity: 'HIGH',
-      message: 'Stress cao kết hợp thiếu ngủ',
-      recommendation: 'Đây là dấu hiệu cần chú ý. Cần cải thiện giấc ngủ và tìm cách giảm stress. Cân nhắc nói chuyện với chuyên gia tâm lý.'
-    });
-  }
-  
-  // Rule: Màn hình nhiều + mỏi mắt
-  if ((data.screen_time || 0) > 8 && (data.eye_strain || 1) >= 6) {
-    alerts.push({
-      category: 'EYE',
+      type: 'POSTURE',
       severity: 'MEDIUM',
-      message: 'Thời gian màn hình cao và mỏi mắt',
-      recommendation: 'Áp dụng quy tắc 20-20-20: Mỗi 20 phút, nhìn xa 20 feet (6m) trong 20 giây. Cân nhắc kiểm tra mắt.'
+      title: 'Ngồi quá lâu không nghỉ',
+      message: 'Ngồi liên tục trên 2 tiếng gây áp lực lớn lên cột sống.',
+      action: 'Đặt nhắc nhở đứng dậy mỗi 30-60 phút.'
     });
   }
   
-  // Rule: Đau đầu thường xuyên
+  // Tư thế xấu
+  if (data.hunched_back === 'always' || data.hunched_back === 'often') {
+    alerts.push({
+      type: 'POSTURE',
+      severity: 'MEDIUM',
+      title: 'Thường xuyên gù lưng',
+      message: 'Gù lưng lâu dài có thể gây biến dạng cột sống.',
+      action: 'Ý thức giữ lưng thẳng, điều chỉnh độ cao ghế và bàn.'
+    });
+  }
+  
+  // ========== EYE ALERTS ==========
+  // Mỏi mắt cao
+  if ((data.eye_strain || 0) >= 7) {
+    alerts.push({
+      type: 'EYE',
+      severity: 'HIGH',
+      title: 'Mỏi mắt nghiêm trọng',
+      message: `Mức mỏi mắt ${data.eye_strain}/10 là khá cao.`,
+      action: 'Áp dụng quy tắc 20-20-20 và cân nhắc kiểm tra mắt.'
+    });
+  }
+  
+  // Nhức đầu thường xuyên
   if (data.headache === 'daily' || data.headache === 'several') {
     alerts.push({
-      category: 'EYE',
+      type: 'EYE',
       severity: 'MEDIUM',
-      message: 'Đau đầu thường xuyên',
-      recommendation: 'Đau đầu có thể liên quan đến mỏi mắt, stress hoặc tư thế. Nếu kéo dài, hãy gặp bác sĩ.'
+      title: 'Nhức đầu thường xuyên',
+      message: 'Nhức đầu có thể liên quan đến mỏi mắt hoặc tư thế.',
+      action: 'Giảm thời gian màn hình, kiểm tra độ sáng và khoảng cách.'
     });
   }
   
-  // Rule: Ngồi nhiều + ít vận động
-  if ((data.sitting_hours || 0) > 6 && (data.exercise_minutes || 0) < 60) {
+  // Màn hình quá gần
+  if (data.screen_distance === 'too_close') {
     alerts.push({
-      category: 'ACTIVITY',
+      type: 'EYE',
       severity: 'MEDIUM',
-      message: 'Ngồi nhiều và ít vận động',
-      recommendation: 'Cố gắng đứng dậy và đi lại mỗi 30-60 phút. Tăng thời gian vận động lên ít nhất 150 phút/tuần.'
+      title: 'Màn hình quá gần mắt',
+      message: 'Khoảng cách <30cm gây căng thẳng cho mắt.',
+      action: 'Giữ khoảng cách 50-70cm từ mắt đến màn hình.'
     });
   }
   
-  // Rule: Tư thế ngồi xấu
-  if (data.sitting_posture === 'hunched' || data.sitting_posture === 'head_forward') {
+  // Ánh sáng không tốt
+  if (data.lighting === 'too_dark' || data.lighting === 'too_bright') {
     alerts.push({
-      category: 'POSTURE',
-      severity: 'MEDIUM',
-      message: 'Tư thế ngồi không tốt',
-      recommendation: 'Tư thế gù lưng hoặc cúi đầu gây áp lực lên cột sống. Điều chỉnh bàn ghế và ý thức giữ lưng thẳng.'
-    });
-  }
-  
-  // Rule: Thiếu ngủ nghiêm trọng
-  if ((data.sleep_hours || 7) < 5) {
-    alerts.push({
-      category: 'SLEEP',
-      severity: 'HIGH',
-      message: 'Thiếu ngủ nghiêm trọng (<5 giờ/đêm)',
-      recommendation: 'Thiếu ngủ ảnh hưởng nghiêm trọng đến sức khỏe và khả năng học tập. Cần ưu tiên cải thiện giấc ngủ.'
-    });
-  }
-  
-  // Rule: Sử dụng màn hình trước ngủ
-  if (data.screen_before_sleep === 'always' && (data.sleep_quality || 5) < 5) {
-    alerts.push({
-      category: 'SLEEP',
-      severity: 'MEDIUM',
-      message: 'Sử dụng màn hình trước ngủ ảnh hưởng giấc ngủ',
-      recommendation: 'Ánh sáng xanh từ màn hình ảnh hưởng hormone melatonin. Tắt thiết bị 1 tiếng trước khi ngủ.'
+      type: 'EYE',
+      severity: 'LOW',
+      title: 'Ánh sáng không phù hợp',
+      message: data.lighting === 'too_dark' ? 'Ánh sáng quá tối gây mỏi mắt.' : 'Ánh sáng quá chói gây khó chịu.',
+      action: 'Điều chỉnh ánh sáng phòng, tránh ánh sáng chiếu trực tiếp vào màn hình.'
     });
   }
   
   return alerts;
 }
 
-function generateRecommendations(data) {
-  const recommendations = [];
+function generateRecommendations(data, scores) {
+  const recs = [];
   
-  // Tư thế
-  if ((data.posture_quality || 5) < 6 || (data.back_pain || 1) > 5 || 
-      data.sitting_posture === 'hunched' || data.sitting_posture === 'head_forward') {
-    recommendations.push({
+  // ========== POSTURE RECOMMENDATIONS ==========
+  if (scores.postureScore < 70) {
+    recs.push({
       category: 'POSTURE',
-      title: 'Cải thiện tư thế ngồi',
-      description: 'Điều chỉnh ghế và bàn làm việc. Giữ lưng thẳng, vai thả lỏng, màn hình ngang tầm mắt. Thử sử dụng gối tựa lưng.',
-      priority: 1
+      priority: 1,
+      title: '🪑 Điều chỉnh tư thế ngồi',
+      tips: [
+        'Giữ lưng thẳng, vai thả lỏng',
+        'Đặt màn hình ngang tầm mắt',
+        'Chân đặt phẳng trên sàn',
+        'Sử dụng gối tựa lưng nếu cần'
+      ]
     });
   }
   
-  // Mắt
-  if ((data.eye_strain || 1) > 5 || (data.screen_time || 0) > 8) {
-    recommendations.push({
+  if (data.break_frequency >= 60) {
+    recs.push({
+      category: 'POSTURE',
+      priority: 2,
+      title: '⏰ Nghỉ giải lao thường xuyên',
+      tips: [
+        'Đứng dậy mỗi 30-45 phút',
+        'Đi lại, vươn vai 2-3 phút',
+        'Thử kỹ thuật Pomodoro: 25 phút làm + 5 phút nghỉ',
+        'Đặt nhắc nhở trên điện thoại'
+      ]
+    });
+  }
+  
+  if ((data.neck_pain || 0) >= 5 || (data.upper_back_pain || 0) >= 5) {
+    recs.push({
+      category: 'POSTURE',
+      priority: 1,
+      title: '🧘 Bài tập giãn cơ',
+      tips: [
+        'Xoay cổ nhẹ nhàng 10 vòng mỗi bên',
+        'Nghiêng đầu sang trái/phải, giữ 15 giây',
+        'Cuộn vai về phía sau 10 lần',
+        'Tập 2-3 lần/ngày, mỗi lần 5 phút'
+      ]
+    });
+  }
+  
+  // ========== EYE RECOMMENDATIONS ==========
+  if (scores.eyeScore < 70) {
+    recs.push({
       category: 'EYE',
-      title: 'Bảo vệ mắt',
-      description: 'Sử dụng chế độ lọc ánh sáng xanh (Night Shift/Dark Mode), đảm bảo ánh sáng phòng đủ, và nghỉ mắt theo quy tắc 20-20-20.',
-      priority: 2
+      priority: 1,
+      title: '👁️ Quy tắc 20-20-20',
+      tips: [
+        'Mỗi 20 phút nhìn màn hình',
+        'Nhìn xa 20 feet (6 mét)',
+        'Trong 20 giây',
+        'Giúp mắt được nghỉ ngơi'
+      ]
     });
   }
   
-  // Vận động
-  if ((data.exercise_minutes || 0) < 150) {
-    recommendations.push({
-      category: 'ACTIVITY',
-      title: 'Tăng cường vận động',
-      description: 'Mục tiêu 150 phút vận động vừa phải/tuần (30 phút x 5 ngày). Bắt đầu với đi bộ, leo cầu thang, hoặc các bài tập đơn giản.',
-      priority: 2
+  if ((data.screen_time || 4) >= 8) {
+    recs.push({
+      category: 'EYE',
+      priority: 2,
+      title: '📱 Giảm thời gian màn hình',
+      tips: [
+        'Hạn chế sử dụng điện thoại khi không cần thiết',
+        'Bật chế độ Dark Mode/Night Shift',
+        'Sử dụng kính lọc ánh sáng xanh',
+        'Tránh dùng màn hình 1 tiếng trước khi ngủ'
+      ]
     });
   }
   
-  // Giấc ngủ
-  if ((data.sleep_hours || 7) < 7 || (data.sleep_quality || 5) < 6) {
-    recommendations.push({
-      category: 'SLEEP',
-      title: 'Cải thiện giấc ngủ',
-      description: 'Cố gắng ngủ 7-9 tiếng/đêm. Tạo thói quen ngủ đều đặn, tránh màn hình 1 tiếng trước khi ngủ, giữ phòng ngủ tối và mát.',
-      priority: 1
+  if (data.dry_eyes === 'often' || data.dry_eyes === 'sometimes') {
+    recs.push({
+      category: 'EYE',
+      priority: 2,
+      title: '💧 Chống khô mắt',
+      tips: [
+        'Chớp mắt thường xuyên (15-20 lần/phút)',
+        'Sử dụng nước mắt nhân tạo nếu cần',
+        'Tránh quạt/điều hòa thổi trực tiếp vào mắt',
+        'Uống đủ nước (2 lít/ngày)'
+      ]
     });
   }
   
-  // Stress
-  if ((data.stress_level || 1) > 6) {
-    recommendations.push({
-      category: 'MENTAL',
-      title: 'Quản lý stress',
-      description: 'Thử các kỹ thuật thư giãn như hít thở sâu 4-7-8, thiền 5-10 phút/ngày, hoặc yoga. Dành thời gian cho sở thích cá nhân và giao tiếp xã hội.',
-      priority: 1
-    });
-  }
+  // Sort by priority
+  recs.sort((a, b) => a.priority - b.priority);
   
-  // Nghỉ giải lao
-  if (data.screen_break === 'never' || data.screen_break === 'rarely') {
-    recommendations.push({
-      category: 'HABIT',
-      title: 'Tạo thói quen nghỉ giải lao',
-      description: 'Đặt nhắc nhở mỗi 25-30 phút để đứng dậy, đi lại, và nhìn xa. Thử kỹ thuật Pomodoro: 25 phút làm việc + 5 phút nghỉ.',
-      priority: 2
-    });
-  }
-  
-  // Sắp xếp theo priority
-  recommendations.sort((a, b) => a.priority - b.priority);
-  
-  return recommendations;
+  return recs;
 }
 
+// =============================================
+// COMPONENT
+// =============================================
+
 export default function Results() {
-  const [result, setResult] = useState(null);
-  const [surveyData, setSurveyData] = useState(null);
-  const [surveyDate, setSurveyDate] = useState(null);
+  const [data, setData] = useState(null);
+  const [scores, setScores] = useState(null);
+  const [alerts, setAlerts] = useState([]);
+  const [recommendations, setRecommendations] = useState([]);
 
   useEffect(() => {
-    const data = localStorage.getItem('surveyData');
-    const date = localStorage.getItem('surveyDate');
-    if (data) {
-      const parsed = JSON.parse(data);
-      setSurveyData(parsed);
-      setResult(analyzeHealth(parsed));
-      if (date) setSurveyDate(new Date(date));
+    const savedData = localStorage.getItem('surveyData');
+    if (savedData) {
+      const parsed = JSON.parse(savedData);
+      setData(parsed);
+      
+      const calculatedScores = calculateScores(parsed);
+      setScores(calculatedScores);
+      setAlerts(generateAlerts(parsed, calculatedScores));
+      setRecommendations(generateRecommendations(parsed, calculatedScores));
     }
   }, []);
 
-  if (!result) {
+  if (!scores) {
     return (
       <div className="max-w-2xl mx-auto text-center py-12">
-        <h2 className="text-2xl font-bold mb-4">Chưa có dữ liệu</h2>
+        <span className="text-6xl">📋</span>
+        <h2 className="text-2xl font-bold mt-4 mb-2">Chưa có dữ liệu</h2>
         <p className="text-gray-600 mb-6">
-          Vui lòng hoàn thành khảo sát để xem kết quả phân tích.
+          Vui lòng hoàn thành khảo sát để xem kết quả.
         </p>
         <Link to="/survey" className="btn-primary">
           Bắt đầu khảo sát
@@ -348,143 +348,127 @@ export default function Results() {
     );
   }
 
-  const getRiskColor = (level) => {
-    switch (level) {
-      case 'LOW': return 'risk-low';
-      case 'MEDIUM': return 'risk-medium';
-      case 'HIGH': return 'risk-high';
-      default: return '';
-    }
-  };
-
-  const getRiskText = (level) => {
-    switch (level) {
-      case 'LOW': return 'Thấp';
-      case 'MEDIUM': return 'Trung bình';
-      case 'HIGH': return 'Cao';
-      default: return level;
-    }
-  };
-
   const getScoreColor = (score) => {
     if (score >= 70) return 'text-green-600';
     if (score >= 40) return 'text-yellow-600';
     return 'text-red-600';
   };
 
-  const getScoreEmoji = (score) => {
-    if (score >= 80) return '😊';
-    if (score >= 60) return '🙂';
+  const getScoreBg = (score) => {
+    if (score >= 70) return 'bg-green-100 border-green-300';
+    if (score >= 40) return 'bg-yellow-100 border-yellow-300';
+    return 'bg-red-100 border-red-300';
+  };
+
+  const getLevelText = (level) => {
+    if (level === 'LOW') return 'Thấp';
+    if (level === 'MEDIUM') return 'Trung bình';
+    return 'Cao';
+  };
+
+  const getEmoji = (score) => {
+    if (score >= 70) return '😊';
     if (score >= 40) return '😐';
     return '😟';
   };
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">📊 Kết quả phân tích</h1>
-        {surveyDate && (
-          <span className="text-sm text-gray-500">
-            Khảo sát ngày: {surveyDate.toLocaleDateString('vi-VN')}
-          </span>
-        )}
-      </div>
+      <h1 className="text-2xl font-bold text-center">📊 Kết quả phân tích</h1>
 
       {/* Disclaimer */}
       <div className="card bg-yellow-50 border border-yellow-200">
-        <p className="text-yellow-800">
-          ⚠️ <strong>Lưu ý quan trọng:</strong> Kết quả chỉ mang tính tham khảo dựa trên dữ liệu bạn cung cấp, 
-          <strong> KHÔNG thay thế chẩn đoán y tế chuyên nghiệp</strong>. 
-          Nếu có vấn đề sức khỏe nghiêm trọng hoặc kéo dài, vui lòng gặp bác sĩ.
+        <p className="text-yellow-800 text-sm">
+          ⚠️ <strong>Lưu ý:</strong> Kết quả chỉ mang tính tham khảo dựa trên dữ liệu bạn cung cấp,
+          <strong> KHÔNG thay thế chẩn đoán y tế</strong>. Nếu có vấn đề nghiêm trọng, hãy gặp bác sĩ.
         </p>
       </div>
 
-      {/* Overall Score */}
-      <div className="card">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-lg font-semibold mb-2">Điểm sức khỏe tổng hợp</h2>
-            <div className="flex items-center gap-3">
-              <span className={`text-5xl font-bold ${getScoreColor(result.overall)}`}>
-                {result.overall}/100
-              </span>
-              <span className="text-4xl">{getScoreEmoji(result.overall)}</span>
-            </div>
-          </div>
-          <div className={`px-6 py-3 rounded-lg border-2 ${getRiskColor(result.riskLevel)}`}>
-            <p className="text-sm">Mức nguy cơ</p>
-            <p className="text-2xl font-bold">{getRiskText(result.riskLevel)}</p>
+      {/* Score Cards */}
+      <div className="grid md:grid-cols-3 gap-4">
+        {/* Posture Score */}
+        <div className={`card border-2 ${getScoreBg(scores.postureScore)}`}>
+          <div className="text-center">
+            <p className="text-sm text-gray-600 mb-1">🪑 Điểm Tư thế</p>
+            <p className={`text-4xl font-bold ${getScoreColor(scores.postureScore)}`}>
+              {scores.postureScore}
+            </p>
+            <p className="text-sm mt-1">
+              Nguy cơ: <strong>{getLevelText(scores.postureLevel)}</strong>
+            </p>
           </div>
         </div>
-        
-        {/* Score interpretation */}
-        <div className="mt-4 pt-4 border-t text-sm text-gray-600">
-          {result.overall >= 70 && (
-            <p>✅ Sức khỏe học đường của bạn đang ở mức tốt. Tiếp tục duy trì thói quen lành mạnh!</p>
-          )}
-          {result.overall >= 40 && result.overall < 70 && (
-            <p>⚠️ Có một số vấn đề cần chú ý. Xem các đề xuất bên dưới để cải thiện.</p>
-          )}
-          {result.overall < 40 && (
-            <p>🔴 Cần chú ý cải thiện sức khỏe. Hãy xem xét các cảnh báo và đề xuất bên dưới.</p>
-          )}
+
+        {/* Eye Score */}
+        <div className={`card border-2 ${getScoreBg(scores.eyeScore)}`}>
+          <div className="text-center">
+            <p className="text-sm text-gray-600 mb-1">👁️ Điểm Mắt</p>
+            <p className={`text-4xl font-bold ${getScoreColor(scores.eyeScore)}`}>
+              {scores.eyeScore}
+            </p>
+            <p className="text-sm mt-1">
+              Nguy cơ: <strong>{getLevelText(scores.eyeLevel)}</strong>
+            </p>
+          </div>
+        </div>
+
+        {/* Overall Score */}
+        <div className={`card border-2 ${getScoreBg(scores.overallScore)}`}>
+          <div className="text-center">
+            <p className="text-sm text-gray-600 mb-1">📊 Điểm Tổng</p>
+            <div className="flex items-center justify-center gap-2">
+              <p className={`text-4xl font-bold ${getScoreColor(scores.overallScore)}`}>
+                {scores.overallScore}
+              </p>
+              <span className="text-3xl">{getEmoji(scores.overallScore)}</span>
+            </div>
+            <p className="text-sm mt-1">
+              Nguy cơ: <strong>{getLevelText(scores.overallLevel)}</strong>
+            </p>
+          </div>
         </div>
       </div>
 
-      {/* Detailed Scores */}
-      <div className="grid md:grid-cols-2 gap-4">
-        {[
-          { key: 'musculoskeletal', label: 'Cơ xương khớp', icon: '🦴', desc: 'Đau lưng, cổ, tư thế' },
-          { key: 'eyeHealth', label: 'Sức khỏe mắt', icon: '👁️', desc: 'Mỏi mắt, thời gian màn hình' },
-          { key: 'mentalHealth', label: 'Sức khỏe tâm thần', icon: '🧠', desc: 'Stress, giấc ngủ, tâm trạng' },
-          { key: 'physicalActivity', label: 'Hoạt động thể chất', icon: '🏃', desc: 'Vận động, thời gian ngồi' }
-        ].map(({ key, label, icon, desc }) => (
-          <div key={key} className="card">
-            <div className="flex items-center gap-3 mb-2">
-              <span className="text-2xl">{icon}</span>
-              <div>
-                <span className="font-medium">{label}</span>
-                <p className="text-xs text-gray-500">{desc}</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="flex-1 h-3 bg-gray-200 rounded-full overflow-hidden">
-                <div
-                  className={`h-full rounded-full transition-all ${
-                    result.scores[key] >= 70 ? 'bg-green-500' :
-                    result.scores[key] >= 40 ? 'bg-yellow-500' : 'bg-red-500'
-                  }`}
-                  style={{ width: `${result.scores[key]}%` }}
-                />
-              </div>
-              <span className={`font-bold min-w-[3rem] text-right ${getScoreColor(result.scores[key])}`}>
-                {result.scores[key]}
-              </span>
-            </div>
+      {/* Score Interpretation */}
+      <div className="card">
+        <h3 className="font-semibold mb-3">📈 Giải thích điểm số</h3>
+        <div className="grid md:grid-cols-3 gap-4 text-sm">
+          <div className="flex items-center gap-2">
+            <span className="w-4 h-4 bg-green-500 rounded"></span>
+            <span>70-100: Nguy cơ thấp</span>
           </div>
-        ))}
+          <div className="flex items-center gap-2">
+            <span className="w-4 h-4 bg-yellow-500 rounded"></span>
+            <span>40-69: Nguy cơ trung bình</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="w-4 h-4 bg-red-500 rounded"></span>
+            <span>0-39: Nguy cơ cao</span>
+          </div>
+        </div>
       </div>
 
       {/* Alerts */}
-      {result.alerts.length > 0 && (
+      {alerts.length > 0 && (
         <div className="card">
-          <h3 className="text-lg font-semibold mb-4">⚠️ Cảnh báo ({result.alerts.length})</h3>
+          <h3 className="font-semibold mb-4">⚠️ Cảnh báo ({alerts.length})</h3>
           <div className="space-y-3">
-            {result.alerts.map((alert, index) => (
+            {alerts.map((alert, index) => (
               <div
                 key={index}
                 className={`p-4 rounded-lg border ${
-                  alert.severity === 'HIGH' ? 'bg-red-50 border-red-200' : 'bg-yellow-50 border-yellow-200'
+                  alert.severity === 'HIGH' ? 'bg-red-50 border-red-200' :
+                  alert.severity === 'MEDIUM' ? 'bg-yellow-50 border-yellow-200' :
+                  'bg-blue-50 border-blue-200'
                 }`}
               >
                 <div className="flex items-start gap-2">
-                  <span>{alert.severity === 'HIGH' ? '🔴' : '🟡'}</span>
+                  <span>{alert.type === 'POSTURE' ? '🪑' : '👁️'}</span>
                   <div>
-                    <p className={`font-medium ${alert.severity === 'HIGH' ? 'text-red-800' : 'text-yellow-800'}`}>
-                      {alert.message}
-                    </p>
-                    <p className={`text-sm mt-1 ${alert.severity === 'HIGH' ? 'text-red-600' : 'text-yellow-600'}`}>
-                      💡 {alert.recommendation}
+                    <p className="font-medium">{alert.title}</p>
+                    <p className="text-sm text-gray-600 mt-1">{alert.message}</p>
+                    <p className="text-sm mt-2">
+                      💡 <strong>Khuyến nghị:</strong> {alert.action}
                     </p>
                   </div>
                 </div>
@@ -495,34 +479,26 @@ export default function Results() {
       )}
 
       {/* Recommendations */}
-      {result.recommendations.length > 0 && (
+      {recommendations.length > 0 && (
         <div className="card">
-          <h3 className="text-lg font-semibold mb-4">💡 Đề xuất cải thiện ({result.recommendations.length})</h3>
-          <div className="space-y-3">
-            {result.recommendations.map((rec, index) => (
+          <h3 className="font-semibold mb-4">💡 Khuyến nghị cải thiện</h3>
+          <div className="space-y-4">
+            {recommendations.map((rec, index) => (
               <div key={index} className="p-4 bg-blue-50 rounded-lg border border-blue-200">
-                <div className="flex items-start gap-2">
-                  <span className="text-blue-600 font-bold">{index + 1}.</span>
-                  <div>
-                    <p className="font-medium text-blue-800">{rec.title}</p>
-                    <p className="text-sm text-blue-600 mt-1">{rec.description}</p>
-                  </div>
-                </div>
+                <h4 className="font-medium text-blue-800 mb-2">{rec.title}</h4>
+                <ul className="space-y-1">
+                  {rec.tips.map((tip, i) => (
+                    <li key={i} className="text-sm text-blue-700 flex items-start gap-2">
+                      <span>•</span>
+                      <span>{tip}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
             ))}
           </div>
         </div>
       )}
-
-      {/* Analysis method */}
-      <div className="card bg-gray-50">
-        <h3 className="font-semibold mb-2">📋 Phương pháp phân tích</h3>
-        <p className="text-sm text-gray-600">
-          Kết quả được tính toán bằng phương pháp <strong>Rule-based</strong> dựa trên các ngưỡng y khoa cơ bản 
-          và khuyến nghị của WHO. Hệ thống phân tích các yếu tố: thói quen ngồi học, thời gian màn hình, 
-          giấc ngủ, vận động, và các triệu chứng tự báo cáo.
-        </p>
-      </div>
 
       {/* Actions */}
       <div className="flex gap-4">
@@ -530,9 +506,16 @@ export default function Results() {
           Làm lại khảo sát
         </Link>
         <Link to="/posture" className="btn-primary flex-1 text-center">
-          Kiểm tra tư thế
+          Kiểm tra tư thế (Camera)
         </Link>
       </div>
+
+      {/* Survey duration */}
+      {data?.survey_duration_seconds && (
+        <p className="text-center text-sm text-gray-400">
+          Thời gian làm khảo sát: {Math.floor(data.survey_duration_seconds / 60)} phút {data.survey_duration_seconds % 60} giây
+        </p>
+      )}
     </div>
   );
 }

@@ -1,71 +1,122 @@
-# 🏥 AI Hỗ Trợ Chẩn Đoán Sớm Vấn Đề Sức Khỏe Học Đường
+# 🎯 Campus Posture & EyeCare AI
 
-## 📋 Giới thiệu
+## Sàng lọc nguy cơ đau lưng do sai tư thế và mỏi mắt do dùng màn hình
 
-Hệ thống AI hỗ trợ sàng lọc và cảnh báo sớm các vấn đề sức khỏe phổ biến ở học sinh, sinh viên như:
-- Đau lưng, đau cổ do tư thế ngồi sai
-- Mỏi mắt do sử dụng thiết bị điện tử
-- Stress và các vấn đề sức khỏe tâm thần
-- Thiếu vận động thể chất
+Web app AI hỗ trợ sàng lọc sớm các vấn đề sức khỏe phổ biến nhất của sinh viên, đưa ra cảnh báo và khuyến nghị cá nhân hóa.
 
-> ⚠️ **Lưu ý**: Hệ thống chỉ hỗ trợ sàng lọc nguy cơ, KHÔNG thay thế chẩn đoán y tế chuyên nghiệp.
+> ⚠️ **Disclaimer**: Hệ thống chỉ hỗ trợ sàng lọc nguy cơ, KHÔNG thay thế chẩn đoán y tế chuyên nghiệp.
 
-## 🎯 Tính năng chính
+---
 
-### 1. Khảo sát sức khỏe tự khai (Self-reported)
-- Form đánh giá thói quen học tập
-- Theo dõi mức độ đau/mỏi theo thang điểm
-- Đánh giá stress và giấc ngủ
+## 🎯 Mục tiêu
 
-### 2. Phân tích tư thế bằng AI (Pose Estimation)
-- Nhận diện góc cổ, độ cong lưng
-- Cảnh báo tư thế xấu real-time
-- Chỉ lưu chỉ số, KHÔNG lưu hình ảnh
+- Sàng lọc nguy cơ **đau lưng/cổ** do tư thế ngồi sai
+- Phát hiện sớm **mỏi mắt** do sử dụng màn hình quá nhiều
+- Đưa ra **cảnh báo sớm** và **khuyến nghị cá nhân hóa**
+- Thu thập dữ liệu **hợp pháp, ẩn danh, không nhạy cảm**
 
-### 3. Hệ thống cảnh báo thông minh
-- Rule-based + Machine Learning
-- Cảnh báo sớm theo xu hướng
-- Đề xuất bài tập/nghỉ ngơi phù hợp
+---
 
-## 🛠️ Công nghệ sử dụng
+## ✨ Tính năng chính
 
-- **Frontend**: React.js / React Native
-- **Backend**: Python FastAPI
-- **AI/ML**: TensorFlow, MediaPipe (Pose Estimation)
-- **Database**: PostgreSQL / MongoDB
-- **Cloud**: AWS / Google Cloud
+### 1. 📋 Khảo sát 3 phút
+- Form ngắn gọn, dễ trả lời
+- Tập trung vào đau lưng/tư thế + mỏi mắt
+- Thu thập 100-200 mẫu từ sinh viên thực
 
-## 📊 Nguồn dữ liệu
+### 2. 📊 Risk Score & Dashboard
+- Tính điểm nguy cơ cá nhân (Posture Score, Eye Score)
+- Dashboard thống kê theo lớp/khoa
+- Biểu đồ xu hướng, xuất báo cáo
 
-1. **Dữ liệu tự khai**: Form khảo sát từ người dùng
-2. **Dữ liệu tư thế**: Chỉ số từ camera (không lưu ảnh)
-3. **Dữ liệu hoạt động**: Từ thiết bị đeo/điện thoại
-4. **Synthetic data**: Dữ liệu giả lập cho giai đoạn thử nghiệm
+### 3. 🤖 AI Analysis
+- Rule-based (giai đoạn 1)
+- ML nhẹ với feature importance (giai đoạn 2)
+- Giải thích yếu tố ảnh hưởng
+
+### 4. 🧘 Posture Check (Tùy chọn)
+- Webcam tính chỉ số tư thế real-time
+- **KHÔNG lưu ảnh/video** - chỉ lưu số liệu
+- Xử lý tại client, đảm bảo riêng tư
+
+---
+
+## 🛠️ Tech Stack
+
+| Layer | Công nghệ |
+|-------|-----------|
+| Frontend | React.js + TailwindCSS |
+| Backend | Python FastAPI |
+| Database | SQL Server |
+| AI/ML | Scikit-learn, MediaPipe |
+
+---
+
+## 👥 Phân công nhóm (4 người)
+
+| Role | Nhiệm vụ |
+|------|----------|
+| **Frontend** | Form khảo sát + Trang kết quả + Risk Score UI |
+| **Backend/API** | API endpoints + Database + Authentication |
+| **Dashboard** | Admin panel + Thống kê + Biểu đồ + Export |
+| **AI/Research** | Rule-based + ML + Đạo đức dữ liệu + Pitch |
+
+---
+
+## 📅 Lộ trình
+
+### Tuần 1: Foundation
+- [x] UI form khảo sát
+- [x] API + Database
+- [x] Dashboard cơ bản
+- [x] Dữ liệu giả lập 300 mẫu
+
+### Tuần 2: Data & Logic
+- [ ] Thu dữ liệu thật (100-200 mẫu)
+- [ ] Rule-based risk scoring
+- [ ] Trang kết quả cá nhân
+
+### Tuần 3: AI & Polish
+- [ ] ML model nhẹ
+- [ ] Feature importance
+- [ ] Polish demo
+- [ ] Chuẩn bị pitch
+
+### Bonus (nếu còn thời gian)
+- [ ] Webcam posture score
+
+---
 
 ## 🔒 Đạo đức & Bảo mật
 
-- ✅ Người dùng đồng ý cung cấp dữ liệu
-- ✅ Không thu thập thông tin y tế nhạy cảm
-- ✅ Dữ liệu được ẩn danh hóa
-- ✅ Không thay thế chẩn đoán y tế chuyên nghiệp
-- ✅ Tuân thủ quy định bảo vệ dữ liệu cá nhân
+- ✅ Người dùng đồng ý trước khi khảo sát
+- ✅ Không thu thập thông tin nhạy cảm
+- ✅ Dữ liệu ẩn danh hóa
+- ✅ Không lưu ảnh/video từ webcam
+- ✅ Không thay thế chẩn đoán y tế
 
-## 📁 Cấu trúc dự án
+---
 
+## 🚀 Quick Start
+
+```bash
+# Backend
+cd backend
+pip install -r requirements.txt
+uvicorn app.main:app --reload
+
+# Frontend
+cd frontend
+npm install
+npm run dev
+
+# Database
+sqlcmd -S "(local)" -E -i database/create_database.sql
+python database/generate_sample_data.py
 ```
-ICPROJECTS/
-├── frontend/           # Ứng dụng web/mobile
-├── backend/            # API server
-├── ai-models/          # Mô hình AI
-├── data/               # Dữ liệu và scripts
-├── docs/               # Tài liệu dự án
-└── tests/              # Unit tests
-```
 
-## 👥 Nhóm phát triển
-
-- [Thêm thông tin nhóm]
+---
 
 ## 📄 License
 
-MIT License
+MIT License - IT Project Competition 2024
