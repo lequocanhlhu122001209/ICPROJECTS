@@ -4,7 +4,7 @@ import Home from './pages/Home';
 import Survey from './pages/Survey';
 import PostureCheck from './pages/PostureCheck';
 import Results from './pages/Results';
-import Dashboard from './pages/Dashboard';
+import Chatbot from './pages/Chatbot';
 
 function App() {
   return (
@@ -15,7 +15,7 @@ function App() {
           <Route path="survey" element={<Survey />} />
           <Route path="posture" element={<PostureCheck />} />
           <Route path="results" element={<Results />} />
-          <Route path="dashboard" element={<Dashboard />} />
+          <Route path="chat" element={<Chatbot />} />
         </Route>
       </Routes>
     </BrowserRouter>

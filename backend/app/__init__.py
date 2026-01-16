@@ -1,1 +1,0 @@
-# Health Screening AI Backend
