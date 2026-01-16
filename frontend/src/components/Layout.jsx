@@ -3,6 +3,7 @@ import { Outlet, Link, useLocation } from 'react-router-dom';
 const navItems = [
   { path: '/', label: 'Trang chủ', icon: '🏠' },
   { path: '/survey', label: 'Khảo sát', icon: '📋' },
+  { path: '/device-data', label: 'Dữ liệu thiết bị', icon: '📱' },
   { path: '/posture', label: 'Kiểm tra tư thế', icon: '🧘' },
   { path: '/results', label: 'Kết quả', icon: '📊' },
   { path: '/dashboard', label: 'Dashboard', icon: '📈' },

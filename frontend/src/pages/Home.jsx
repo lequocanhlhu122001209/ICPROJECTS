@@ -25,28 +25,36 @@ export default function Home() {
       </section>
 
       {/* Features */}
-      <section className="grid md:grid-cols-3 gap-6">
+      <section className="grid md:grid-cols-4 gap-6">
         <div className="card text-center">
           <div className="text-4xl mb-4">📋</div>
           <h3 className="text-lg font-semibold mb-2">Khảo sát sức khỏe</h3>
-          <p className="text-gray-600">
-            Đánh giá thói quen học tập, triệu chứng và mức độ stress thông qua form khảo sát đơn giản.
+          <p className="text-gray-600 text-sm">
+            22 câu hỏi đánh giá thói quen học tập, triệu chứng và mức độ stress.
+          </p>
+        </div>
+        
+        <div className="card text-center">
+          <div className="text-4xl mb-4">📱</div>
+          <h3 className="text-lg font-semibold mb-2">Dữ liệu thiết bị</h3>
+          <p className="text-gray-600 text-sm">
+            Nhập dữ liệu từ đồng hồ thông minh: bước chân, thời gian vận động.
           </p>
         </div>
         
         <div className="card text-center">
           <div className="text-4xl mb-4">🧘</div>
           <h3 className="text-lg font-semibold mb-2">Phân tích tư thế</h3>
-          <p className="text-gray-600">
-            AI nhận diện tư thế ngồi qua camera và cảnh báo khi tư thế xấu. Không lưu hình ảnh.
+          <p className="text-gray-600 text-sm">
+            AI nhận diện tư thế qua camera. Không lưu hình ảnh.
           </p>
         </div>
         
         <div className="card text-center">
           <div className="text-4xl mb-4">📊</div>
           <h3 className="text-lg font-semibold mb-2">Cảnh báo thông minh</h3>
-          <p className="text-gray-600">
-            Nhận cảnh báo sớm và đề xuất cải thiện dựa trên phân tích AI.
+          <p className="text-gray-600 text-sm">
+            Rule-based + ML phát hiện nguy cơ và đề xuất cải thiện.
           </p>
         </div>
       </section>
